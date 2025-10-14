@@ -1,31 +1,36 @@
 package settheory;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-//A data structure which contains a which supports DB like query operations
-public class QuerySet<T>{
+import static java.util.Objects.requireNonNull;
 
-    private final Set<T> set;
+//A data structure which contains a which supports DB like query operations
+public class QuerySet<E>{
+
+    private final Set<E> set;
 
     public QuerySet(){
         this.set = new HashSet<>();
     }
+
+    public QuerySet(Collection<? extends E> values){
+        this.set = new HashSet<>(values);
+    }
+
+
+
 
     /**
      * Adds a non-null and a value that doesn't exist in this set to the set
      * @param val The value being added
      * @return the value that was added
      * */
-    public T add(T val){
-        if(val == null){
-            throw new IllegalArgumentException("Inserted value cannot be null");
-        }
+    public E add(E val){
+        requireNonNull(val,"Inserted value cannot be null");
 
-        if(this.set.contains(val)){
+        if(this.contains(val)){
             throw new IllegalArgumentException("This value already exists in the set");
         }
 
@@ -39,15 +44,15 @@ public class QuerySet<T>{
      * </br>Note that this modifies the original set
      * * @return a unionized query set
      * */
-    public QuerySet<T> union(Collection<? extends T> values){
+    public QuerySet<E> union(Collection<? extends E> values){
         if(values == null){
             throw new IllegalArgumentException("Collection cannot be null");
         }
 
-        for (T val : values){
+        for (E val : values){
             try{
                 this.add(val);
-            }catch (IllegalArgumentException e){
+            }catch (NullPointerException | IllegalArgumentException e){
 
             }
         }
@@ -59,14 +64,12 @@ public class QuerySet<T>{
      * Performs the union of an instance of this class and another query set
      * @param values The query set we're performing a union with
      * </br>Note that this modifies the original set
-     * * @return a unionized instance of this query set
+     * @return a unionized instance of this query set
      * */
-    public QuerySet<T> union(QuerySet<T> values){
-        if(values == null){
-            throw new IllegalArgumentException("Collection cannot be null");
-        }
+    public QuerySet<E> union(QuerySet<? extends E> values){
+        requireNonNull(values, "Collection cannot be null");
 
-        for (T val : values.set){
+        for (E val : values.set){
             try{
                 this.add(val);
             }catch (IllegalArgumentException e){
@@ -81,60 +84,38 @@ public class QuerySet<T>{
     /**
      * Performs the intersection of an instance of this class and another collection
      * @param values The collections we're intersecting with
-     * </br>Note that this modifies the original set
-     * * @return an intersected instance of this query set
+     * </br>Note that this does not modify the original set
+     * @return an intersected instance of a query set
      * */
-    public QuerySet<T> intersect(Collection<? extends T> values){
-        if(values == null){
-            throw new IllegalArgumentException("Collection cannot be null");
-        }
-        QuerySet<T> intersectedSet = new QuerySet<>();
-        Predicate<T> predicate = v -> this.set.contains(v) && values.contains(v);
-
-        for (T val : values){
-            try{
-                if(predicate.test(val)){
-                    intersectedSet.add(val);
-                }
-            }catch (IllegalArgumentException e){
-
-            }
-        }
-
-        this.set.clear();
-        this.union(intersectedSet);
-
-        return this;
+    public QuerySet<E> intersect(Collection<? extends E> values){
+        requireNonNull(values, "Collection cannot be null");
+        final QuerySet<E> newSet = new QuerySet<>(values);
+        return this.intersect(newSet);
     }
 
     /**
      * Performs the intersection of an instance of this class and another query set
      * @param values The query set we're intersecting with
-     * </br>Note that this modifies the original set
-     * * @return an intersected instance of this query set
+     * </br>Note that this does not modify this query set
+     * @return an intersected instance of this query set
      * */
-    public QuerySet<T> intersect(QuerySet<T> values){
-        if(values == null){
-            throw new IllegalArgumentException("Collection cannot be null");
-        }
+    public QuerySet<E> intersect(QuerySet<E> values){
+        requireNonNull(values, "Collection cannot be null");
 
-        QuerySet<T> intersectedSet = new QuerySet<>();
-        Predicate<T> predicate = v -> this.set.contains(v) && values.set.contains(v);
+        final QuerySet<E> intersectedSet = new QuerySet<>();
+        final Predicate<E> predicate = v -> this.contains(v) && values.contains(v);
 
-        for (T val : values.set){
+        for (E val : values.set){
             try{
                 if(predicate.test(val)){
                     intersectedSet.add(val);
                 }
-            }catch (IllegalArgumentException e){
+            }catch (NullPointerException | IllegalArgumentException e){
 
             }
         }
 
-        this.set.clear();
-        this.union(intersectedSet);
-
-        return this;
+        return intersectedSet;
     }
 
     /**
@@ -143,9 +124,9 @@ public class QuerySet<T>{
      * @param predicate The condition/predicate given
      * @return a filtered query set based on the predicate given
      * */
-    public QuerySet<T> filter(Predicate<T> predicate){
-        final QuerySet<T> filtered = new QuerySet<>();
-        for (T val : this.set){
+    public QuerySet<E> filter(Predicate<E> predicate){
+        final QuerySet<E> filtered = new QuerySet<>();
+        for (E val : this.set){
             if (predicate.test(val)){
                 filtered.add(val);
             }
@@ -159,8 +140,8 @@ public class QuerySet<T>{
      * @param predicate The value we're checking for
      * @return returns true if any one value in the set satisfies the predicate and false otherwise
      * */
-    public boolean anyMatch(Predicate<T> predicate){
-        for (T val : this.set){
+    public boolean anyMatch(Predicate<E> predicate){
+        for (E val : this.set){
             if(predicate.test(val)){
                 return true;
             }
@@ -176,8 +157,8 @@ public class QuerySet<T>{
      * @param predicate The value we're checking for
      * @return returns true if all values in the set satisfies the predicate and false otherwise
      * */
-    public boolean allMatch(Predicate<T> predicate){
-        for (T val : this.set){
+    public boolean allMatch(Predicate<E> predicate){
+        for (E val : this.set){
             if(!predicate.test(val)){
                 return false;
             }
@@ -187,14 +168,179 @@ public class QuerySet<T>{
     }
 
     /**
+     * Checks if this set contains a value
+     * @param val The value we're looking for
+     * @return true if the value exists and false otherwise
+     * */
+    public boolean contains(E val){
+        requireNonNull(val, "Value cannot be null");
+        return this.set.contains(val);
+    }
+
+    /**
      * Iterates through every element in an array and performs and action with it
      * @param consumer The consumer which accepts the action to perform
      * */
-    public void forEach(Consumer<? super T> consumer){
-        for (T t : this.set){
-            consumer.accept(t);
+    public void forEach(Consumer<? super E> consumer){
+        for (E e : this.set){
+            consumer.accept(e);
         }
     }
+
+    /**
+     * Performs the difference of an instance of this class and another collection
+     * @param values The query set we're finding the diff against
+     * </br>Note that this does not modify the original set
+     * @return a query set of the values which exist in this class but not in the collection
+     * */
+    public QuerySet<E> difference(Collection<? extends E> values){
+        requireNonNull(values, "Collection cannot be null");
+        return this.difference(new QuerySet<>(values));
+    }
+
+    /**
+     * Performs the difference of an instance of this class and another query set
+     * @param values The query set we're finding the difference against
+     * </br>Note that this does not modify the original set
+     * @return a query set of the values which exist in this class but not in the collection
+     * */
+    public QuerySet<E> difference(QuerySet<E> values){
+        requireNonNull(values, "Collection cannot be null");
+
+        final QuerySet<E> dSet = new QuerySet<>();
+        final Predicate<E> predicate = v -> this.contains(v) && !values.contains(v);
+
+        for (E e : this.set){
+            if(predicate.test(e)){
+                try{
+                    dSet.add(e);
+                }catch (IllegalArgumentException ex){
+
+                }
+            }
+        }
+
+        return dSet;
+    }
+
+
+    /**
+     * Performs the symmetric difference of an instance of this class and another collection
+     * @param values The collection we're finding the symmetric difference with
+     * </br>Note that this does not modify the original set
+     * @return a query set of the values which exist in this class but not in the collection and vice versa
+     * */
+    public QuerySet<E> symmetricDifference(Collection<E> values){
+        requireNonNull(values, "Collection cannot be null");
+        return this.symmetricDifference(new QuerySet<>(values));
+    }
+
+    /**
+     * Performs the symmetric difference of an instance of this class and another query set
+     * @param values The query set we're finding the symmetric difference with
+     * </br>Note that this does not modify the original set
+     * @return a query set of the values which exist in this class but not in the collection and vice versa
+     * */
+    public QuerySet<E> symmetricDifference(QuerySet<E> values){
+        requireNonNull(values, "Collection cannot be null");
+        final QuerySet<E> symmetricSet = new QuerySet<>();
+        return symmetricSet.union(values.difference(this)).union(this.difference(values));
+    }
+
+    /**
+     * Checks if a query set is a subset of this query set
+     * @return true if it is a subset and false otherwise
+     * */
+    public boolean isSubsetOf(QuerySet<E> values){
+        for (E e : this.set){
+            if(!this.set.contains(e)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if a collection is a subset of this query set
+     * @return true if it is a subset and false otherwise
+     * */
+    public boolean isSubsetOf(Collection<E> values){
+        requireNonNull(values, "Collection cannot be null");
+        return this.isSubsetOf(new QuerySet<>(values));
+    }
+
+    /**
+     * Checks if a collection is a super set of this query set
+     * @return true if it is a super set and false otherwise
+     * */
+    public boolean isSupersetOf(Collection<E> values){
+        requireNonNull(values, "Collection cannot be null");
+        return this.isSupersetOf(new QuerySet<>(values));
+    }
+
+    /**
+     * Checks if a query set is a super set of this query set
+     * @return true if it is a super set and false otherwise
+     * */
+    public boolean isSupersetOf(QuerySet<E> values){
+        requireNonNull(values, "Collection cannot be null");
+        return values.isSubsetOf(this);
+    }
+
+    /**
+     * @return  the count of elements in the set that fulfils the predicate
+     * */
+    public int count(Predicate<E> predicate){
+        return this.filter(predicate).size();
+    }
+
+    /**
+     * Checks if this set is empty
+     * @return true if it is empty and false otherwise
+     * */
+    public boolean isEmpty(){
+        return this.set.isEmpty();
+    }
+
+    /**
+     * @return The number of elements in this set
+     * */
+    public int size(){
+        return this.set.size();
+    }
+
+    /**
+     * @return The first element in this set
+     * */
+    public E findFirst(){
+        if(this.isEmpty()){
+            return null;
+        }
+        return this.toList().getFirst();
+    }
+
+    /**
+     * @return The last element in this set
+     * */
+    public E findLast(){
+        if(this.isEmpty()){
+            return null;
+        }
+        return this.toList().getLast();
+    }
+
+    /**
+     * Converts an instance of this class to a list
+     * @return An immutable list
+     * */
+    public List<E> toList(){
+        return new ArrayList<>(this.set);
+    }
+
+
+
+
 
 
 

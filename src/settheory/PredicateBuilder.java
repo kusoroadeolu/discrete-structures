@@ -16,7 +16,7 @@ public class PredicateBuilder<T>{
      * @param givenPredicate The predicate we're comparing against
      * @return this instance of this class
      * */
-    public PredicateBuilder<? super T> and(Predicate<? super T> givenPredicate){
+    public PredicateBuilder<T> and(Predicate<T> givenPredicate){
         this.predicate = v -> this.predicate.test(v) && givenPredicate.test(v);
         return this;
     }
@@ -26,7 +26,7 @@ public class PredicateBuilder<T>{
      * @param givenPredicate The predicate we're comparing against
      * @return this instance of this class
      * */
-    public PredicateBuilder<? super T> or(Predicate<? super T> givenPredicate){
+    public PredicateBuilder<T> or(Predicate<T> givenPredicate){
         this.predicate = v -> this.predicate.test(v) || givenPredicate.test(v);
         return this;
     }
@@ -35,7 +35,7 @@ public class PredicateBuilder<T>{
      * Reverses the value of this predicate
      * @return this instance of this class
      * */
-    public PredicateBuilder<? super T> or(){
+    public PredicateBuilder<T> not(){
         this.predicate = v -> !this.predicate.test(v);
         return this;
     }
@@ -44,18 +44,9 @@ public class PredicateBuilder<T>{
         return new PredicateBuilder<>(predicate);
     }
 
-    public Predicate<? super T> build(){
+    public Predicate<T> build(){
         return this.predicate;
     }
-
-
-
-
-
-
-
-
-
 
 
 }
