@@ -1,4 +1,4 @@
-package settheory;
+package settheory.sets;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -6,17 +6,17 @@ import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
-//A data structure which contains a which supports DB like query operations
+//A data structure which contains a which supports set like query operations
 public class QuerySet<E>{
 
-    private final Set<E> set;
+    protected final Set<E> set;
 
     public QuerySet(){
-        this.set = new HashSet<>();
+        this.set = new LinkedHashSet<>();
     }
 
     public QuerySet(Collection<? extends E> values){
-        this.set = new HashSet<>(values);
+        this.set = new LinkedHashSet<>(values);
     }
 
 
@@ -253,7 +253,7 @@ public class QuerySet<E>{
      * */
     public boolean isSubsetOf(QuerySet<E> values){
         for (E e : this.set){
-            if(!this.set.contains(e)){
+            if(!values.set.contains(e)){
                 return false;
             }
         }
@@ -339,11 +339,97 @@ public class QuerySet<E>{
     }
 
 
+    /**
+     * Gets the power set of this query set
+     * </br> Finds the all possible subsets by iterating from 0 to 2^n values. Uses binary rep to determine which values belong in which subsets
+     * @return a set of all the possible subsets of this query set
+     * */
+    public Set<QuerySet<E>> getPowerSet(){
+        final int size = this.size();
+        final int numberOfSubsets = this.powerSetCount();
+        final List<E> list = this.toList();
+        final Set<QuerySet<E>> powerSet = new LinkedHashSet<>();
 
+        for (int i = 0; i < numberOfSubsets; i++){
+            QuerySet<E> qs = new QuerySet<>();
 
+            for (int j = 0; j < size; j++){
+                //Move 1 in binary by the value of j  i.e j = 1 (01), j = 5 (10000) and compare to the binary val of i
+                if((i & (1 << j)) != 0){
+                    qs.add(list.get(j));
+                }
+            }
 
+            powerSet.add(qs);
+        }
 
+        return powerSet;
+    }
 
+    /**
+     * @return true or false if the set size is equal to this class
+     * */
+    public boolean isEquivalentTo(QuerySet<E> set){
+        return this.size() == set.size();
+    }
 
+    /**
+     * @return A query set which is the union of all given sets
+     * */
+    public static <E> QuerySet<E> unionAll(QuerySet<E>... sets) {
+        QuerySet<E> unionSet = new QuerySet<>();
+        if(sets.length == 0){
+            return unionSet;
+        }
+        for (int i = 0; i < sets.length; i++){
+            unionSet.union(sets[i]);
+        }
+
+        return unionSet;
+    }
+
+    /**
+     * @return A query set which is the intersection of all given sets
+     * */
+    public static <E> QuerySet<E> intersectAll(QuerySet<E>... sets) {
+        QuerySet<E> intersectSet = new QuerySet<>();
+        if(sets.length == 0){
+            return intersectSet;
+        }
+        intersectSet.union(sets[0]);
+        for (int i = 1; i < sets.length; i++){
+            intersectSet = intersectSet.intersect(sets[i]);
+        }
+
+        return intersectSet;
+    }
+
+    /**
+     * @return true or false if all the values in both sets are perfectly identical
+     * */
+    @Override
+    public boolean equals(Object set) {
+       if(!(set instanceof QuerySet<?> castSet)){
+           return false;
+       }
+
+        if(castSet.size() != this.size()){
+           return false;
+       }
+
+       return this.set.equals(castSet.set);
+    }
+
+    @Override
+    public int hashCode() {
+        return set.hashCode();
+    }
+
+    /**
+     * @return  the number of possible subsets this query set will have
+     * */
+    public int powerSetCount() {
+        return (int) Math.pow(2, this.size());
+    }
 
 }
