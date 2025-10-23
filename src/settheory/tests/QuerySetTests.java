@@ -74,4 +74,61 @@ public class QuerySetTests {
 
     }
 
+    public static void shouldSuccessfullySolveExercise3Part1(){
+        IO.println("=== Exercise 3 Part 1 Results ===");
+        QuerySet<Integer> a = new QuerySet<>(List.of(1,2,3,4,5));
+        QuerySet<Integer> b = new QuerySet<>(List.of(0,3,6));
+
+        //a. A ∪ B
+        QuerySet<Integer> AuB = a.union(b);
+        Assertions.print("A ∪ B", AuB);
+
+        //b. A - B
+        QuerySet<Integer> AdiffB = a.difference(b);
+        Assertions.print("A - B", AdiffB);
+
+        //c. A ∩ B
+        QuerySet<Integer> AsectB = a.intersect(b);
+        Assertions.print("A ∩ B", AsectB);
+
+        IO.println("==========================");
+    }
+
+    public static void shouldSuccessfullySolveExercise3Part2(){
+        IO.println("=== Exercise 3 Part 2 Results ===");
+        QuerySet<Integer> a = new QuerySet<>(List.of(0,2,4,6,8,10));
+        QuerySet<Integer> b = new QuerySet<>(List.of(0,1,2,3,4,5,6));
+        QuerySet<Integer> c = new QuerySet<>(List.of(4,5,6,7,8,9,10));
+
+        //a. A ∩ B ∩ C
+        QuerySet<Integer> AsectB_sectC = a.intersect(b).intersect(c);
+        Assertions.print("A ∩ B ∩ C", AsectB_sectC);
+
+        //b. A ∪ B ∪ C
+        QuerySet<Integer> AuBuC = a.union(b).union(c);
+        Assertions.print("A ∪ B ∪ C", AuBuC);
+
+        //c. (A ∪ B) ∩ C
+        QuerySet<Integer> AuB_sectC = a.difference(b);
+        Assertions.print("(A ∪ B) ∩ C", AuB_sectC);
+
+        //d. (A ∩ B) ∪ C
+        QuerySet<Integer> AsectB_uC = a.intersect(b).union(c);
+        Assertions.print("(A ∩ B) ∪ C", AsectB_uC);
+
+        //e. A ∩ (B - C)
+        QuerySet<Integer> Asect_BdiffC = a.intersect(b.difference(c));
+        Assertions.print("A ∩ (B - C)", Asect_BdiffC);
+
+        //f. (A ∩ B) ∪ (A ∩ C)
+        QuerySet<Integer> AsectB_u_AsectC = a.intersect(b).union(a.intersect(c));
+        Assertions.print("(A ∩ B) ∪ (A ∩ C)", AsectB_u_AsectC);
+
+        //f. (A ∩ B') ∪ (A ∩ C'), since there is no given universal set, we assume the universal set to be the set of all real numbers
+        QuerySet<Integer> AsectBcomp_u_AsectCcomp = a.intersect(b).union(a.intersect(c));
+        Assertions.print("(A ∩ B) ∪ (A ∩ C)", AsectBcomp_u_AsectCcomp);
+
+        IO.println("==========================");
+    }
+
 }
