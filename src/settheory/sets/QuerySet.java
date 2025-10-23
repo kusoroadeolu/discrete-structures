@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import static java.util.Objects.requireNonNull;
 
 //A data structure which contains a which supports set like query operations
-public class QuerySet<E>{
+public sealed class QuerySet<E> permits DomainSet{
 
     protected final Set<E> set;
 
@@ -17,6 +17,10 @@ public class QuerySet<E>{
 
     public QuerySet(Collection<? extends E> values){
         this.set = new LinkedHashSet<>(values);
+    }
+
+    public QuerySet(QuerySet<? extends E> values){
+        this.set = new LinkedHashSet<>(values.set);
     }
 
 
@@ -41,43 +45,33 @@ public class QuerySet<E>{
     /**
      * Performs the union of an instance of this class and another collection
      * @param values The collections we're performing a union with
-     * </br>Note that this modifies the original set
+     * </br>Note that this does not modify the original set
      * * @return a unionized query set
      * */
     public QuerySet<E> union(Collection<? extends E> values){
         if(values == null){
             throw new IllegalArgumentException("Collection cannot be null");
         }
-
-        for (E val : values){
-            try{
-                this.add(val);
-            }catch (NullPointerException | IllegalArgumentException e){
-
-            }
-        }
-
-        return this;
+        return this.union(new QuerySet<>(values));
     }
 
     /**
      * Performs the union of an instance of this class and another query set
      * @param values The query set we're performing a union with
-     * </br>Note that this modifies the original set
+     * </br>Note that this does not modify the original set
      * @return a unionized instance of this query set
      * */
     public QuerySet<E> union(QuerySet<? extends E> values){
         requireNonNull(values, "Collection cannot be null");
-
+        QuerySet<E> newSet = new QuerySet<>(this);
         for (E val : values.set){
             try{
-                this.add(val);
-            }catch (IllegalArgumentException e){
+                newSet.add(val);
+            }catch (IllegalArgumentException _){
 
             }
         }
-
-        return this;
+        return newSet;
     }
 
 
@@ -110,7 +104,7 @@ public class QuerySet<E>{
                 if(predicate.test(val)){
                     intersectedSet.add(val);
                 }
-            }catch (NullPointerException | IllegalArgumentException e){
+            }catch (NullPointerException | IllegalArgumentException _){
 
             }
         }
@@ -214,7 +208,7 @@ public class QuerySet<E>{
             if(predicate.test(e)){
                 try{
                     dSet.add(e);
-                }catch (IllegalArgumentException ex){
+                }catch (IllegalArgumentException _){
 
                 }
             }
@@ -389,6 +383,24 @@ public class QuerySet<E>{
     }
 
     /**
+     * Finds the cartesian product of this query set and another query set
+     * @return A set containing all the cartesian products of both sets
+     * */
+    public Set<Pair<E, E>> cartesianProduct(QuerySet<E> set){
+        final Set<Pair<E, E>> cp = new LinkedHashSet<>();
+        final List<E> thisAsList = this.toList();
+
+        for (int i = 0; i < this.size(); i++){
+            E val = thisAsList.get(i);
+            set.forEach(e -> {
+                cp.add(new Pair<>(val, e));
+            });
+        }
+
+        return cp;
+    }
+
+    /**
      * @return A query set which is the intersection of all given sets
      * */
     public static <E> QuerySet<E> intersectAll(QuerySet<E>... sets) {
@@ -430,6 +442,16 @@ public class QuerySet<E>{
      * */
     public int powerSetCount() {
         return (int) Math.pow(2, this.size());
+    }
+
+    public static record Pair<A, B>(
+            A val1,
+            B val2
+    ) {
+        @Override
+        public String toString() {
+            return "Pair: {%s, %s}".formatted(val1, val2);
+        }
     }
 
 }

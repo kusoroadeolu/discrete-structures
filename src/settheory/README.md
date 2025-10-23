@@ -4,7 +4,7 @@ A lightweight Java data structure that implements set theory operations with a f
 
 ## Overview
 
-QuerySet wraps a `HashSet` and provides SQL-inspired operations for working with sets. It combines classic set theory operations (union, intersection, difference) with predicate-based filtering and querying.
+QuerySet wraps a `LinkedHashSet` and provides Set inspired operations for working with sets. It combines classic set theory operations (union, intersection, difference) with predicate-based filtering and querying.
 
 ## Core Concepts
 
@@ -16,7 +16,6 @@ QuerySet<Integer> a = new QuerySet<>(List.of(1, 2, 3));
 QuerySet<Integer> b = new QuerySet<>(List.of(3, 4, 5));
 a.union(b); // {1, 2, 3, 4, 5}
 ```
-*Note: Union is mutable and modifies the original set.*
 
 **Intersection** - Returns elements that exist in both sets.
 ```java
@@ -79,10 +78,8 @@ boolean isSuperset = a.isSupersetOf(List.of(1, 2)); // true
 
 ## Design Decisions
 
-### Mutable vs Immutable Operations
-
-- **Mutable**: `union()` - Designed for incrementally building up a set
-- **Immutable**: `filter()`, `intersect()`, `difference()`, `symmetricDifference()` - Query operations that don't modify the original set, allowing for clean chaining and composition
+###  Immutable Operations
+- **Immutable**: `union()` `filter()`, `intersect()`, `difference()`, `symmetricDifference()` - Query operations that don't modify the original set, allowing for clean chaining and composition
 
 ### Why Predicates?
 
@@ -161,38 +158,45 @@ QuerySet<Integer> result = QuerySet.intersectAll(a, b, c); // {2, 3}
 
 ### DomainSet - Sets with Constraints
 
-DomainSet extends QuerySet to support universal sets and complement operations. It enforces that all elements must satisfy a domain predicate and exist within a universal set.
-
+DomainSet extends QuerySet to support universal sets and complement operations. It enforces that all elements must satisfy a domain predicate and optionally exist within a universal set.
 ```java
-// Create a universal set
+// Create a domain set with a finite universal set
 QuerySet<Integer> universal = new QuerySet<>(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-
-// Create a domain set for even numbers
 DomainSet<Integer> evens = new DomainSet<>(
-    n -> n % 2 == 0,  // domain predicate
-    universal
+        n -> n % 2 == 0,  // domain predicate
+        universal,
+        List.of(2, 4, 6)  // initial elements
 );
 
-evens.add(2); // OK
-evens.add(4); // OK
+evens.add(8); // OK - passes predicate and in universal set
 evens.add(3); // Throws exception - not in domain
 evens.add(12); // Throws exception - not in universal set
 
 // Get complement (odd numbers from universal set)
 QuerySet<Integer> odds = evens.complement(); // {1, 3, 5, 7, 9}
+
+// Create a domain set representing infinite sets
+// Pass null or empty universal set to allow any value that passes the predicate
+DomainSet<Integer> allEvens = new DomainSet<>(
+        n -> n % 2 == 0,  // domain predicate
+        null,             // no universal set constraint
+        List.of(2, 4, 6, 100, 1000)  // any even numbers allowed
+);
 ```
 
-## Additional Features
+### Cartesian Product
+**Cartesian Product** - Returns all possible ordered pairs from two sets
 
-- `forEach(Consumer)` - Iterate over elements with a consumer
-- `findFirst()` / `findLast()` - Retrieve first or last element
-- `toList()` - Convert to an immutable List
-- `isEmpty()` / `size()` - Basic set information
-- `contains(E)` - Check if element exists
+```java
+import settheory.sets.QuerySet;
 
----
+QuerySet<Integer> a = new QuerySet<>(List.of(1, 2));
+QuerySet<Integer> b = new QuerySet<>(List.of(3, 4));
+Set<QuerySet.Pair<Integer, Integer>> cp = a.cartesianProduct(b);
+//Returns {1, 3}, {1, 4}, {2, 3}, {3, 4}
+```
+The result is a set of Pair<E, E> objects where order matters and duplicates in elements are preserved. For sets of size m and n, the cartesian product will have m × n pairs.
 
-*Built as a learning project to explore set theory concepts and predicate-based functional programming in Java.*
 
 ## Additional Features
 
