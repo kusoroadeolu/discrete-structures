@@ -370,6 +370,7 @@ public sealed class QuerySet<E> permits DomainSet{
     /**
      * @return A query set which is the union of all given sets
      * */
+    @SafeVarargs
     public static <E> QuerySet<E> unionAll(QuerySet<E>... sets) {
         QuerySet<E> unionSet = new QuerySet<>();
         if(sets.length == 0){
@@ -403,6 +404,7 @@ public sealed class QuerySet<E> permits DomainSet{
     /**
      * @return A query set which is the intersection of all given sets
      * */
+    @SafeVarargs
     public static <E> QuerySet<E> intersectAll(QuerySet<E>... sets) {
         QuerySet<E> intersectSet = new QuerySet<>();
         if(sets.length == 0){

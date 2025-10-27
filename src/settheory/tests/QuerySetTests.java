@@ -109,7 +109,7 @@ public class QuerySetTests {
         Assertions.print("A ∪ B ∪ C", AuBuC);
 
         //c. (A ∪ B) ∩ C
-        QuerySet<Integer> AuB_sectC = a.difference(b);
+        QuerySet<Integer> AuB_sectC = a.union(b).intersect(c);
         Assertions.print("(A ∪ B) ∩ C", AuB_sectC);
 
         //d. (A ∩ B) ∪ C
