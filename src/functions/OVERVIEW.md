@@ -1,4 +1,4 @@
-# FUNCTIONS OVERVIEW
+# FUNCTIONS - OVERVIEW
 
 ## A BRIEF INTRO
 - A function is a rule that assigns an input to an output i.e. `f(x) = x * 3`; It is an abstract mathematical object that exists regardless of if anyone talks about it or not. Functions are total by default
@@ -13,7 +13,7 @@
 - A codomain is a set of allowable outputs is the codomain. The codomain also does not have to adhere to the range of the function
 - A range or the image of the function differs from the codomain in the sense that it is the set of all possible outputs from the given domain.
 
-### Recursively Defined Functions
+### Recursively Defined functions.Functions
 
 We can also describe a function recursively. For example a function whose base case is `f(0) = 0`, and it's formula `f(n + 1) = f(n) + f(n * 2) + 1`
 </br> This function will compute the square of the n(its input). It can also be expressed as `f(n) =  f(n - 1) + f((n - 1) * 2) + 1`
@@ -27,7 +27,7 @@ More recursive examples can be found at [functions/recursivefunctions/RecursiveM
 
 ### Surjections, Injections, Bijections
 #### Surjections
-A function is said to be surjective when the values in the domain maps to each element in the codomain (meaning that all the codomain is a subset of the range of the function)
+A function is said to be surjective when the values in the domain maps to each element in the codomain (meaning that every element in the codomain should be in the range)
 </br> Given a function `f(n) = n + 3` where `n -> N` is the domain we can define the codomain as `C = {5,6,7,8,9}` but the range will be `{f(n): N > 4}`
 </br> We can clearly see that the codomain is a subset of the range, hence this function given its domain, is surjective
 
@@ -39,7 +39,7 @@ A function is said to be injective when each of the values in the domain has a u
 A function is said to bijective when it is both injective and subjective, meaning its codomain is a subset of the range and each element in the codomain maps to at most one element in the domain
 
 
-### Inverse Images and Functions
+### Inverse Images and functions.Functions
 
 #### Inverse Images
 Inverting an image means trying to find the values of `x` in the domain which maps to a specific `y` which exists in the codomain. This is very straight forward
@@ -48,7 +48,7 @@ Inverting an image means trying to find the values of `x` in the domain which ma
 </br> The inverse image of 7 would be the empty set {}, since no input maps to 7.
 
 
-#### Inverse Functions
+#### Inverse functions.Functions
 Inverting a function means trying to get the value of `x` in the domain which maps to any `y` which exists in the domain
 </br> Given a function `f(n) = n * 3` where `{1,2,3,4,5}` is the domain we can define the codomain as `C = {3,6,9,12,15,18}`
 </br> To invert this function to get input `x` from any image `y` in the codomain, we denote the function as y = n * 3 then make `n` the subject of the formula `n = y / 3`.

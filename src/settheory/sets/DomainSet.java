@@ -35,6 +35,7 @@ public final class DomainSet<E> extends QuerySet<E>{
     private DomainSet(){
 
     }
+
     /**
      * An implementation of query set which ensures every value in this set abides to the domain
      * */
