@@ -96,11 +96,8 @@ public class FunctionChecker<T, R> {
 
 
     private void validateDomain(DomainSet<T> domainSet){
-        if(domainSet.isEmpty()){
-            throw new IllegalArgumentException("Domain cannot be empty");
-        }
-
-        this.domainSet = domainSet;
+        if(domainSet.isEmpty()) throw new IllegalArgumentException("Domain cannot be empty");
+        else this.domainSet = domainSet;
     }
 
 

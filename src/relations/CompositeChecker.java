@@ -22,8 +22,7 @@ public class CompositeChecker {
     }
 
     private static Pair compositePair(Pair a, Pair b){
-//        IO.println("Second: %s, First: %s".formatted(a, b));
-        if(a.second() != b.first()) return null;
+        if(a.canCompose(b)) return null;
         return new Pair(a.first(), b.second());
     }
 

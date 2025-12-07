@@ -22,6 +22,14 @@ public record Pair(
         return new Pair(second, first);
     }
 
+    public boolean canCompose(Pair other){
+        return second == other.first;
+    }
+
+    public Pair compose(Pair other){
+        return new Pair(first, other.second);
+    }
+
     public boolean isSelfPair(){
         return first == second;
     }

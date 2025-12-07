@@ -2,21 +2,18 @@ package relations;
 
 import settheory.sets.QuerySet;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static relations.Status.ABSENT;
 import static relations.Status.FOUND;
 
 public class RelationPropertyChecker {
 
-    public static boolean isReflexive(QuerySet<Integer> set, Relation r){
+    public static boolean isReflexive(QuerySet<Integer> a, Relation r){
         final List<Pair> pairs = r.pairs().toList();
-        final Set<Pair> ps = new HashSet<>(set.size());
-        set.forEach(i -> ps.add(new Pair(i, i)));
-        final int expected = set.size();
+        final Set<Pair> ps = new HashSet<>(a.size());
+        a.forEach(i -> ps.add(new Pair(i, i)));
+        final int expected = a.size();
         int count = 0;
 
         for (Pair pair : pairs) {
@@ -55,8 +52,28 @@ public class RelationPropertyChecker {
     }
 
     public static boolean isTransitive(Relation r){
-        return false;
-    } //TBD
+        final QuerySet<Pair> pairs = r.pairs();
+        final List<Pair> ps = pairs.toList();
+        final Set<Pair> seen = new HashSet<>();
+        for (int i = 0; i < pairs.size(); i++){
+            final Pair pi = ps.get(i);
+            if (pi.isSelfPair()) continue;
+
+            for (int j = i + 1; j < pairs.size(); j++){
+                final Pair pj = ps.get(j);
+
+                if(!pi.canCompose(pj)) continue;
+
+                final Pair compose = pi.compose(pj);
+                if (seen.contains(compose)) continue;
+
+                if (!pairs.contains(compose)) return false;
+                else seen.add(compose);
+            }
+        }
+
+        return true;
+    }
 
 
 
