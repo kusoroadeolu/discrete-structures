@@ -12,15 +12,15 @@ public sealed class QuerySet<E> permits DomainSet{
     protected final Set<E> set;
 
     public QuerySet(){
-        this.set = new LinkedHashSet<>();
+        this.set = new HashSet<>();
     }
 
     public QuerySet(Collection<? extends E> values){
-        this.set = new LinkedHashSet<>(values);
+        this.set = new HashSet<>(values);
     }
 
     public QuerySet(QuerySet<? extends E> values){
-        this.set = new LinkedHashSet<>(values.set);
+        this.set = new HashSet<>(values.set);
     }
 
 
@@ -33,10 +33,7 @@ public sealed class QuerySet<E> permits DomainSet{
      * */
     public E add(E val){
         requireNonNull(val,"Inserted value cannot be null");
-
-        if(this.contains(val)){
-            throw new IllegalArgumentException("This value already exists in the set");
-        }
+        if(this.contains(val)) return val;
 
         this.set.add(val);
         return val;
@@ -46,12 +43,10 @@ public sealed class QuerySet<E> permits DomainSet{
      * Performs the union of an instance of this class and another collection
      * @param values The collections we're performing a union with
      * </br>Note that this does not modify the original set
-     * * @return a unionized query set
+     * @return a unionized query set
      * */
     public QuerySet<E> union(Collection<? extends E> values){
-        if(values == null){
-            throw new IllegalArgumentException("Collection cannot be null");
-        }
+        requireNonNull(values, "Collection cannot be null");
         return this.union(new QuerySet<>(values));
     }
 
@@ -65,11 +60,7 @@ public sealed class QuerySet<E> permits DomainSet{
         requireNonNull(values, "Collection cannot be null");
         QuerySet<E> newSet = new QuerySet<>(this);
         for (E val : values.set){
-            try{
-                newSet.add(val);
-            }catch (IllegalArgumentException _){
-
-            }
+            newSet.add(val);
         }
         return newSet;
     }
@@ -100,13 +91,10 @@ public sealed class QuerySet<E> permits DomainSet{
         final Predicate<E> predicate = v -> this.contains(v) && values.contains(v);
 
         for (E val : values.set){
-            try{
-                if(predicate.test(val)){
-                    intersectedSet.add(val);
-                }
-            }catch (NullPointerException | IllegalArgumentException _){
-
+            if(predicate.test(val)){
+                intersectedSet.add(val);
             }
+
         }
 
         return intersectedSet;
@@ -373,11 +361,8 @@ public sealed class QuerySet<E> permits DomainSet{
     @SafeVarargs
     public static <E> QuerySet<E> unionAll(QuerySet<E>... sets) {
         QuerySet<E> unionSet = new QuerySet<>();
-        if(sets.length == 0){
-            return unionSet;
-        }
-        for (int i = 0; i < sets.length; i++){
-            unionSet.union(sets[i]);
+        for (QuerySet<E> eQuerySet : sets) {
+            unionSet.union(eQuerySet);
         }
 
         return unionSet;
@@ -393,9 +378,7 @@ public sealed class QuerySet<E> permits DomainSet{
 
         for (int i = 0; i < this.size(); i++){
             E val = thisAsList.get(i);
-            set.forEach(e -> {
-                cp.add(new Pair<>(val, e));
-            });
+            set.forEach(e -> cp.add(new Pair<>(val, e)));
         }
 
         return cp;
@@ -410,6 +393,7 @@ public sealed class QuerySet<E> permits DomainSet{
         if(sets.length == 0){
             return intersectSet;
         }
+
         intersectSet.union(sets[0]);
         for (int i = 1; i < sets.length; i++){
             intersectSet = intersectSet.intersect(sets[i]);
@@ -446,7 +430,7 @@ public sealed class QuerySet<E> permits DomainSet{
         return (int) Math.pow(2, this.size());
     }
 
-    public static record Pair<A, B>(
+    public record Pair<A, B>(
             A val1,
             B val2
     ) {

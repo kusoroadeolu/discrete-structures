@@ -14,6 +14,8 @@ void main() {
     checker.getRange().forEach(e -> val.append(e).append(", "));
     IO.println(val.substring(0, val.length() - 2) + "}");
 
+    
+
     //Should not be surjective
     IO.println("Is surjective: " + checker.isSurjective());
 
@@ -28,4 +30,6 @@ void main() {
 
     //Should return nothing
     checker.inverseImage(17).forEach(e -> IO.println("Inverse image? " + e));
+
+
 }
